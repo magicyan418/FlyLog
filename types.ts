@@ -8,15 +8,21 @@ export type ThemeMode = 'dark' | 'light';
 export interface FlightRecord {
   id: string;
   timestamp: number;
+  flightTime?: string; // 飞行时间 HH:mm 格式
   duration: number; // in minutes
   mood: FlightMood;
   notes: string;
+  process?: string; // 飞行过程描述
   intensity: number; // 1-5
 }
 
+export type AIProvider = 'openai' | 'anthropic' | 'google' | 'custom';
+
 export interface AISettings {
-  model: 'gemini-3-flash-preview' | 'gemini-3-pro-preview';
-  thinkingBudget: number; // 0 to 32768
+  provider: AIProvider;
+  apiKey: string;
+  baseURL?: string; // 自定义 URL（用于 custom 或代理）
+  model: string;
   customInstruction: string;
 }
 
