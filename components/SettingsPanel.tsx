@@ -66,9 +66,16 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   const handleTestConnection = async () => {
     setIsTestingConnection(true);
     setTestResult(null);
-    const result = await testAIConnection(aiSettings);
-    setTestResult(result);
-    setIsTestingConnection(false);
+    try {
+      const result = await testAIConnection(aiSettings);
+      setTestResult(result);
+    } catch (error) {
+      console.error(error);
+      setTestResult({ success: false, message: "测试失败，请稍后重试" });
+    } finally {
+
+      setIsTestingConnection(false);
+    }
   };
 
   return (

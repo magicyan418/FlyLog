@@ -104,37 +104,64 @@ export const getFlightInsights = async (
 
 你的任务是以专业、不评判的态度，用航空术语分析用户的飞行日志，提供健康建议。保持幽默但不色情的语气，像一个关心驾驶员身心健康的塔台管制员。称呼用户为"机长"。`;
 
-  // 使用自定义指令或默认指令
-  const systemInstruction = settings.customInstruction?.trim()
-    ? settings.customInstruction
-    : defaultInstruction;
+  // 术语背景说明（无论是否自定义都需要知道术语含义）
+  const terminologyContext = `## 术语说明
+在这个应用中，"飞行"相关术语是对男性自慰活动的隐喻：
+- "飞行" = 自慰行为
+- "航程时长" = 持续时间
+- "天气状况" = 心情/感受状态
+- "引擎推力" = 强度等级
+- "起飞" = 开始
+- "着陆" = 结束`;
 
-  const prompt = `机长，塔台收到您最近的飞行数据。请根据这些航班记录生成一份专业的飞行情报简报。
+  // 构建完整系统指令
+  let systemInstruction: string;
+
+  if (settings.customInstruction?.trim()) {
+    // 如果有自定义指令，完全使用自定义指令的风格和语气
+    systemInstruction = `${settings.customInstruction}
+
+${terminologyContext}
+
+## 输出要求
+- 必须使用简体中文回答
+- 回复中使用飞行相关术语来隐喻
+- 严格按照以下 JSON 格式输出，不要添加任何额外文字：
+{
+  "title": "标题（中文，15字以内）",
+  "content": "分析内容（中文，80字以内）",
+  "suggestion": "建议（中文，50字以内）"
+}`;
+  } else {
+    // 使用默认指令
+    systemInstruction = `${defaultInstruction}
+
+## 输出格式
 必须使用简体中文回答。
-
-最近10次航班数据: ${JSON.stringify(
-    records.slice(-10).map((r) => ({
-      时间: new Date(r.timestamp).toLocaleString("zh-CN"),
-      航程: r.duration + "分钟",
-      天气: r.mood,
-      推力: r.intensity,
-      备注: r.notes || "无",
-    }))
-  )}
-
-分析要点：
-1. 注意飞行频率是否合理（过于频繁或过少都需要提醒）
-2. 观察航程时长的变化趋势
-3. 关注天气状况（心情）的波动
-4. 评估引擎推力（强度）是否稳定
-5. 提供健康、平衡的生活建议
-
 请严格按照以下 JSON 格式输出，不要添加任何额外文字：
 {
   "title": "航空风格的情报标题（中文，15字以内）",
   "content": "简短的飞行状态分析，使用航空术语（中文，80字以内）",
   "suggestion": "一条具体的健康建议（中文，50字以内）"
 }`;
+  }
+
+  // HumanMessage 只包含数据
+  const prompt = `最近的飞行数据：
+
+${JSON.stringify(
+  records.slice(-10).map((r) => ({
+    时间: new Date(r.timestamp).toLocaleString("zh-CN"),
+    航程: r.duration + "分钟",
+    天气: r.mood,
+    推力: r.intensity,
+    备注: r.notes || "无",
+  })),
+  null,
+  2
+)}
+
+请生成飞行情报简报。`;
 
   try {
     let llm;
