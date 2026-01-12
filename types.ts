@@ -16,7 +16,7 @@ export interface FlightRecord {
   intensity: number; // 1-5
 }
 
-export type AIProvider = 'openai' | 'anthropic' | 'google' | 'custom';
+export type AIProvider = 'openai' | 'anthropic' | 'google' | 'custom' | 'trial';
 
 export interface AISettings {
   provider: AIProvider;

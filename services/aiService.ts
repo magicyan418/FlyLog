@@ -168,6 +168,16 @@ ${JSON.stringify(
 
     // 根据 provider 创建对应的 LLM 实例
     switch (settings.provider) {
+      case "trial":
+        // 体验模式：使用环境变量配置
+        llm = new ChatOpenAI({
+          apiKey: import.meta.env.VITE_TRIAL_API_KEY || settings.apiKey,
+          model: import.meta.env.VITE_TRIAL_MODEL || "gpt-4o-mini",
+          configuration: import.meta.env.VITE_TRIAL_BASE_URL
+            ? { baseURL: import.meta.env.VITE_TRIAL_BASE_URL }
+            : undefined,
+        });
+        break;
       case "openai":
         llm = new ChatOpenAI({
           apiKey: settings.apiKey,

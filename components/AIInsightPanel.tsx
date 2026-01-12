@@ -27,7 +27,7 @@ export const AIInsightPanel: React.FC<AIInsightPanelProps> = ({
           <span className={`w-2 h-2 rounded-full bg-${primaryColor}-500 animate-pulse`}></span>
           飞行智能情报
         </h3>
-        {aiInsight && onRefresh && !isAiLoading && (
+        {onRefresh && !isAiLoading && (
           <button
             onClick={onRefresh}
             className={`p-2 rounded-lg transition-all ${isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-100'} ${textMutedClass} hover:text-${primaryColor}-500`}

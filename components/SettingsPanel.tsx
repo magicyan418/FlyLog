@@ -25,6 +25,7 @@ interface SettingsPanelProps {
 }
 
 const AI_PROVIDERS: { id: AIProvider; name: string; defaultModel: string }[] = [
+  { id: 'trial', name: '体验', defaultModel: '' },
   { id: 'openai', name: 'OpenAI', defaultModel: 'gpt-4o-mini' },
   { id: 'anthropic', name: 'Anthropic', defaultModel: 'claude-3-5-sonnet-20241022' },
   { id: 'google', name: 'Google', defaultModel: 'gemini-2.0-flash-exp' },
@@ -56,11 +57,23 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
   const handleProviderChange = (provider: AIProvider) => {
     const providerConfig = AI_PROVIDERS.find(p => p.id === provider);
-    onAiSettingsChange({
-      ...aiSettings,
-      provider,
-      model: providerConfig?.defaultModel || aiSettings.model
-    });
+    
+    // 如果选择体验模式，从环境变量读取配置
+    if (provider === 'trial') {
+      onAiSettingsChange({
+        ...aiSettings,
+        provider,
+        apiKey: import.meta.env.VITE_TRIAL_API_KEY || '',
+        model: import.meta.env.VITE_TRIAL_MODEL || 'gpt-4o-mini',
+        baseURL: import.meta.env.VITE_TRIAL_BASE_URL || ''
+      });
+    } else {
+      onAiSettingsChange({
+        ...aiSettings,
+        provider,
+        model: providerConfig?.defaultModel || aiSettings.model
+      });
+    }
   };
 
   const handleTestConnection = async () => {
@@ -140,7 +153,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 <label className={`block text-sm font-bold mb-2 ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
                   AI 厂商 (Provider)
                 </label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-3 gap-2">
                   {AI_PROVIDERS.map((provider) => (
                     <button
                       key={provider.id}
@@ -155,9 +168,15 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     </button>
                   ))}
                 </div>
+                {aiSettings.provider === 'trial' && (
+                  <p className={`text-xs mt-2 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                    💡 体验模式：API 配置来自环境变量，您只需设置自定义系统指令
+                  </p>
+                )}
               </div>
 
-              {/* API Key */}
+              {/* API Key - 体验模式隐藏 */}
+              {aiSettings.provider !== 'trial' && (
               <div>
                 <label className={`block text-sm font-bold mb-2 ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
                   API Key
@@ -172,8 +191,9 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                   } border-none focus:ring-2 focus:ring-${primaryColor}-500 text-sm placeholder:text-slate-500`}
                 />
               </div>
+              )}
 
-              {/* Custom Base URL (for custom provider or proxy) */}
+              {/* Custom Base URL (for custom provider or proxy) - 体验模式隐藏 */}
               {aiSettings.provider === 'custom' && (
                 <div className="animate-in slide-in-from-top-2">
                   <label className={`block text-sm font-bold mb-2 ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
@@ -191,7 +211,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 </div>
               )}
 
-              {/* Model Name */}
+              {/* Model Name - 体验模式隐藏 */}
+              {aiSettings.provider !== 'trial' && (
               <div>
                 <label className={`block text-sm font-bold mb-2 ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
                   模型名称 (Model)
@@ -212,8 +233,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                   {aiSettings.provider === 'custom' && '请输入完整的模型名称'}
                 </p>
               </div>
+              )}
 
-              {/* Test Connection Button */}
+              {/* Test Connection Button - 体验模式隐藏 */}
+              {aiSettings.provider !== 'trial' && (
               <div>
                 <button
                   onClick={handleTestConnection}
@@ -236,8 +259,9 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                   </div>
                 )}
               </div>
+              )}
 
-              {/* Custom Instruction */}
+              {/* Custom Instruction - 始终显示 */}
               <div>
                 <label className={`block text-sm font-bold mb-2 ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
                   自定义系统指令 (System Instruction)
