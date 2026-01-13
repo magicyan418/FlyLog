@@ -31,19 +31,24 @@ export const Dashboard: React.FC<DashboardProps> = ({
   isDark
 }) => {
   const totalFlights = records.length;
-  const avgDuration = totalFlights > 0 
-    ? Math.round(records.reduce((acc, r) => acc + r.duration, 0) / totalFlights) 
+  const avgDuration = totalFlights > 0
+    ? Math.round(records.reduce((acc, r) => acc + r.duration, 0) / totalFlights)
     : 0;
-  const lastFlightDate = records.length > 0 
-    ? new Date(records[0].timestamp).toLocaleDateString('zh-CN') 
+  const lastFlightDate = records.length > 0
+    ? new Date(records[0].timestamp).toLocaleDateString('zh-CN')
     : '暂无数据';
-  const streak = Math.min(records.length, 7);
+  
+  // 计算本周飞行次数
+  const now = new Date();
+  const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+  const weekFlights = records.filter(r => new Date(r.timestamp) >= weekStart).length;
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard 
-          label="总计起飞" 
+          label="总计起飞"
+          subLabel="机长飞行总数" 
           value={totalFlights} 
           icon={<Icons.Activity />} 
           trend={totalFlights > 5 ? "+12%" : undefined} 
@@ -58,20 +63,21 @@ export const Dashboard: React.FC<DashboardProps> = ({
           themeColor={primaryColor} 
           isDark={isDark} 
         />
-        <StatsCard 
-          label="连胜记录" 
-          value={`${streak} 天`} 
-          icon={<Icons.TrendingUp />} 
-          // trend="稳定"
-          themeColor={primaryColor} 
-          isDark={isDark} 
+        <StatsCard
+          label="本周飞行"
+          value={`${weekFlights} 次`}
+          icon={<Icons.TrendingUp />}
+          subLabel="本周起飞统计"
+          themeColor={primaryColor}
+          isDark={isDark}
         />
-        <StatsCard 
-          label="最近离港" 
-          value={lastFlightDate} 
-          icon={<Icons.Calendar />} 
-          themeColor={primaryColor} 
-          isDark={isDark} 
+        <StatsCard
+          label="最近起飞"
+          value={lastFlightDate}
+          icon={<Icons.Calendar />}
+          subLabel="上次飞行日期"
+          themeColor={primaryColor}
+          isDark={isDark}
         />
       </div>
 
