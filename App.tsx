@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import * as XLSX from 'xlsx';
 import { AISettings, FlightRecord } from './types';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { useFlightData } from './hooks/useFlightData';
@@ -96,27 +97,40 @@ const AppContent: React.FC = () => {
       info('尚无记录可导出');
       return;
     }
-    const headers = ['记录ID', '飞行时间', '持续时长(分钟)', '天气状况', '引擎强度', '备注'];
+    
+    // 准备数据
+    const headers = ['记录ID', '起飞时间', '航程时长(分钟)', '天气状况', '引擎推力', '飞行过程', '航班备注'];
     const rows = records.map(r => [
       r.id,
       new Date(r.timestamp).toLocaleString('zh-CN'),
       r.duration,
       MOOD_DISPLAY[r.mood],
       r.intensity,
-      `"${(r.notes || '').replace(/"/g, '""')}"`
+      r.process || '',
+      r.notes || ''
     ]);
-    const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
-    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `机长飞行日志_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    setTimeout(() => {
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    }, 100);
+    
+    // 创建工作表
+    const wsData = [headers, ...rows];
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    
+    // 设置列宽（单位：字符宽度）
+    ws['!cols'] = [
+      { wch: 38 },  // 记录ID
+      { wch: 20 },  // 起飞时间
+      { wch: 16 },  // 航程时长(分钟)
+      { wch: 12 },  // 天气状况
+      { wch: 12 },  // 引擎推力
+      { wch: 40 },  // 飞行过程
+      { wch: 40 }   // 航班备注
+    ];
+    
+    // 创建工作簿
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, '飞行记录');
+    
+    // 导出文件
+    XLSX.writeFile(wb, `机长飞行日志_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
   const exportBackup = () => {
