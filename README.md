@@ -213,3 +213,11 @@ MIT License
 <div align="center">
 Made with ❤️ and ✈️
 </div>
+
+## License
+
+fly-log  
+Copyright (C) 2026 magicyan418
+
+This project is licensed under the GNU General Public License v3.0
+(or any later version).
