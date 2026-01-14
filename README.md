@@ -204,16 +204,6 @@ npm run type-check
 
 如遇到问题或有功能建议，欢迎提交 Issue。
 
-## 📄 开源协议
-
-MIT License
-
----
-
-<div align="center">
-Made with ❤️ and ✈️
-</div>
-
 ## License
 
 fly-log  
@@ -221,3 +211,7 @@ Copyright (C) 2026 magicyan418
 
 This project is licensed under the GNU General Public License v3.0
 (or any later version).
+
+<div align="center">
+Made with ❤️ and ✈️
+</div>
