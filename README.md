@@ -209,8 +209,7 @@ npm run type-check
 fly-log  
 Copyright (C) 2026 magicyan418
 
-This project is licensed under the GNU General Public License v3.0
-(or any later version).
+This project is licensed under the GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 
 <div align="center">
 Made with ❤️ and ✈️
